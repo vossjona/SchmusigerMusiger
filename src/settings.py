@@ -13,6 +13,8 @@ class Settings(BaseSettings):
 
     BOT_CONFIGS_PATH: Path = Path("configs") / "config.yml"
 
+    OPUS_LIB_NAME: str = "/opt/homebrew/Cellar/opus/1.5.2/lib/libopus.dylib"
+
     model_config = SettingsConfigDict(
         env_file=".env",
         env_file_encoding="utf-8",
@@ -33,4 +35,3 @@ class BotConfig(BaseModel):
         """Use config json or yaml file to read ai-model-gateway configurations."""
         config = read_file(filepath)
         return cls.model_validate(config["ai_model_gateway"])
-

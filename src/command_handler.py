@@ -16,9 +16,9 @@ class CommandHandler:
     def load_commands(self) -> None:
         """Discover and load all command modules."""
         import commands as commands_pkg
+        
         for finder, name, _ in pkgutil.iter_modules(commands_pkg.__path__):
             module_path = f"commands.{name}"
-            print(f"Loading {module_path}")
             try:
                 module = importlib.import_module(module_path)
                 if hasattr(module, "setup"):

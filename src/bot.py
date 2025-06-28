@@ -1,3 +1,5 @@
+import ctypes
+
 import discord
 from discord.ext import commands
 
@@ -7,6 +9,10 @@ from settings import Settings, BotConfig
 # Load settings (reads .env then config.yml)
 settings = Settings()
 bot_config = BotConfig()
+
+if not discord.opus.is_loaded():
+    discord.opus.load_opus(settings.OPUS_LIB_NAME)
+assert discord.opus.is_loaded(), "Opus failed to load!"
 
 # Intents
 intents = discord.Intents.default()
