@@ -1,5 +1,7 @@
 import discord
 from discord.ext import commands
+
+from command_handler import CommandHandler
 from settings import Settings, BotConfig
 
 # Load settings (reads .env then config.yml)
@@ -20,11 +22,11 @@ bot = commands.Bot(
 @bot.event
 async def on_ready():
     print(f"[+] Logged in as {bot.user} (ID: {bot.user.id})")
+    print("Registered commands:", [c.name for c in bot.commands])
 
-@bot.command(name="test")
-async def test_cmd(ctx: commands.Context):
-    """Responds with the configured greeting."""
-    await ctx.send(bot_config.greeting)
+# Load commands via handler
+cmd_handler = CommandHandler(bot)
+cmd_handler.load_commands()
 
 if __name__ == "__main__":
     print(settings)

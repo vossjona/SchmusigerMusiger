@@ -9,7 +9,7 @@ from utils import read_file
 
 class Settings(BaseSettings):
     """Contains settings for this project."""
-    DISCORD_TOKEN: SecretStr
+    DISCORD_TOKEN: SecretStr = SecretStr("")
 
     BOT_CONFIGS_PATH: Path = Path("configs") / "config.yml"
 
