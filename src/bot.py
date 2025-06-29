@@ -35,6 +35,4 @@ cmd_handler = CommandHandler(bot)
 cmd_handler.load_commands()
 
 if __name__ == "__main__":
-    print(settings)
-    print(bot_config)
     bot.run(settings.DISCORD_TOKEN.get_secret_value())

@@ -1,8 +1,10 @@
 import discord
 from discord.ext import commands
 
-from audio_manager import play_url, PlaybackError
+from audio_manager import play_url, pause_playback, resume_playback
 from youtube import YouTubeMetadata, extract_info
+
+from exceptions import HumanError, PlaybackError
 
 
 async def play(ctx: commands.Context, url: str):
@@ -67,20 +69,40 @@ async def stop(ctx: commands.Context):
 
 async def pause(ctx: commands.Context):
     """Pause playback."""
-    # Todo
-    embed = discord.Embed(
-        title="Work in Progress",
-    )
-    await ctx.send(embed=embed)
+    try:
+        await pause_playback(ctx)
+        embed = discord.Embed(
+            title="Paused",
+            description="Playback has been paused.",
+            color=discord.Color.orange(),
+        )
+        await ctx.send(embed=embed)
+    except HumanError as exc:
+        embed = discord.Embed(
+            title="Human Error",
+            description=str(exc),
+            color=discord.Color.red(),
+        )
+        await ctx.send(embed=embed)
 
 
 async def resume(ctx: commands.Context):
     """Resume playback."""
-    # Todo
-    embed = discord.Embed(
-        title="Work in Progress",
-    )
-    await ctx.send(embed=embed)
+    try:
+        await resume_playback(ctx)
+        embed = discord.Embed(
+            title="Resumed",
+            description="Playback has been resumed.",
+            color=discord.Color.green(),
+        )
+        await ctx.send(embed=embed)
+    except HumanError as exc:
+        embed = discord.Embed(
+            title="Human Error",
+            description=str(exc),
+            color=discord.Color.red(),
+        )
+        await ctx.send(embed=embed)
 
 
 async def volume(ctx: commands.Context, level: int):

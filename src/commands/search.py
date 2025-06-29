@@ -45,3 +45,13 @@ async def song_info(ctx: commands.Context, url: str):
         title="Work in Progress",
     )
     await ctx.send(embed=embed)
+
+
+def setup(bot: commands.Bot):
+    bot.add_command(commands.Command(search, name="search", help="Search for a song"))
+    bot.add_command(commands.Command(search_youtube, name="search_youtube", help="Search for a song on YouTube"))
+    bot.add_command(commands.Command(search_soundcloud, name="search_soundcloud", help="Search for a song on SoundCloud"))
+    bot.add_command(commands.Command(search_spotify, name="search_spotify", help="Search for a song on Spotify"))
+    bot.add_command(commands.Command(song_info, name="song_info", help="Show information about a specific song"))
+
+

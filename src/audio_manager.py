@@ -3,11 +3,9 @@ import logging
 import discord
 from discord.ext import commands
 
+from exceptions import PlaybackError, HumanError
+
 logger = logging.getLogger(__name__)
-
-
-class PlaybackError(Exception):
-    """Raised for any recoverable playback-related failure."""
 
 
 async def play_url(ctx: commands.Context, url: str) -> None:
@@ -58,3 +56,37 @@ async def play_url(ctx: commands.Context, url: str) -> None:
     except Exception as exc:  # pragma: no cover
         logger.exception("Failed to start playback")
         raise PlaybackError("Failed to start playback.") from exc
+
+
+async def pause_playback(ctx: commands.Context) -> None:
+    """
+    Pause the currently playing audio.
+
+    Raises
+    ------
+    HumanError
+        If no audio is currently playing.
+    """
+    voice_client: discord.VoiceClient | None = ctx.guild.voice_client  # type: ignore[attr-defined]
+    
+    if not voice_client or not voice_client.is_playing():
+        raise HumanError("No audio is currently playing.")
+    
+    voice_client.pause()
+
+
+async def resume_playback(ctx: commands.Context) -> None:
+    """
+    Resume paused audio playback.
+
+    Raises
+    ------
+    HumanError
+        If no audio is currently paused.
+    """
+    voice_client: discord.VoiceClient | None = ctx.guild.voice_client  # type: ignore[attr-defined]
+    
+    if not voice_client or not voice_client.is_paused():
+        raise HumanError("No audio is currently paused.")
+    
+    voice_client.resume()

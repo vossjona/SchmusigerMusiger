@@ -3,7 +3,7 @@ import logging
 
 from pydantic import BaseModel
 from yt_dlp import YoutubeDL
-from audio_manager import PlaybackError
+from exceptions import PlaybackError
 
 logger = logging.getLogger(__name__)
 
