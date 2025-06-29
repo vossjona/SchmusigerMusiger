@@ -1,17 +1,28 @@
 import logging
+from typing import Callable, Optional
 
 import discord
 from discord.ext import commands
 
 from exceptions import PlaybackError, HumanError
+from music_queue import music_queue
 
 logger = logging.getLogger(__name__)
 
 
-async def play_url(ctx: commands.Context, url: str) -> None:
+async def play_url(ctx: commands.Context, url: str, on_complete: Optional[Callable] = None) -> None:
     """
     Join the command author's voice channel (if not already connected) and
     stream the provided audio URL via FFmpeg.
+
+    Parameters
+    ----------
+    ctx : commands.Context
+        The Discord command context
+    url : str
+        The audio URL to stream
+    on_complete : Optional[Callable]
+        Callback function to execute when playback completes
 
     Raises
     ------
@@ -50,12 +61,70 @@ async def play_url(ctx: commands.Context, url: str) -> None:
     def _after(err: Exception | None) -> None:
         if err:
             logger.error("Player error: %s", err)
+        else:
+            # Song completed successfully, trigger callback if provided
+            if on_complete:
+                try:
+                    # Use asyncio to run the callback in the event loop
+                    import asyncio
+                    asyncio.create_task(on_complete())
+                except Exception as callback_err:
+                    logger.error("Callback error: %s", callback_err)
 
     try:
         voice_client.play(source, after=_after)
     except Exception as exc:  # pragma: no cover
         logger.exception("Failed to start playback")
         raise PlaybackError("Failed to start playback.") from exc
+
+
+async def play_next_in_queue(ctx: commands.Context) -> bool:
+    """
+    Play the next song in the queue automatically.
+    
+    Returns
+    -------
+    bool
+        True if a song was played, False if queue is empty
+    """
+    next_song = music_queue.skip()
+    if next_song:
+        music_queue.set_current(next_song)
+        try:
+            # Create a callback that will play the next song when this one ends
+            async def queue_callback():
+                await play_next_in_queue(ctx)
+            
+            await play_url(ctx, next_song.stream_url, on_complete=queue_callback)
+            return True
+        except PlaybackError as exc:
+            logger.error("Failed to play next song in queue: %s", exc)
+            # Try to continue with the next song
+            await play_next_in_queue(ctx)
+            return False
+    else:
+        # Queue is empty, clear current song
+        music_queue.set_current(None)
+        return False
+
+
+async def stop_playback(ctx: commands.Context) -> None:
+    """
+    Stop playback and clear the queue.
+    
+    Raises
+    ------
+    HumanError
+        If no audio is currently playing.
+    """
+    voice_client: discord.VoiceClient | None = ctx.guild.voice_client  # type: ignore[attr-defined]
+    
+    if not voice_client or (not voice_client.is_playing() and not voice_client.is_paused()):
+        raise HumanError("No audio is currently playing.")
+    
+    voice_client.stop()
+    music_queue.clear()
+    music_queue.set_current(None)
 
 
 async def pause_playback(ctx: commands.Context) -> None:

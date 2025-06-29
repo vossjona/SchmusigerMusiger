@@ -1,8 +1,9 @@
 import discord
 from discord.ext import commands
 
-from audio_manager import play_url, pause_playback, resume_playback
+from audio_manager import play_url, pause_playback, resume_playback, stop_playback, play_next_in_queue
 from youtube import YouTubeMetadata, extract_info
+from music_queue import music_queue
 
 from exceptions import HumanError, PlaybackError
 
@@ -21,9 +22,7 @@ async def play(ctx: commands.Context, url: str):
 
     # Retrieve metadata (this can take a moment)
     try:
-        print("Fetching YouTube metadata...")
         meta: YouTubeMetadata = await extract_info(url)
-        print("Fetched YouTube metadata...")
     except Exception as exc:  # pragma: no cover
         embed = discord.Embed(
             title="YouTube Error",
@@ -33,38 +32,71 @@ async def play(ctx: commands.Context, url: str):
         await ctx.send(embed=embed)
         return
 
-    # Attempt to start playback
-    try:
-        await play_url(ctx, meta.stream_url)
-    except PlaybackError as exc:
-        embed = discord.Embed(
-            title="Playback Error",
-            description=str(exc),
-            color=discord.Color.red(),
-        )
-        await ctx.send(embed=embed)
-        return
+    # Check if something is currently playing
+    voice_client: discord.VoiceClient | None = ctx.guild.voice_client  # type: ignore[attr-defined]
+    is_playing = voice_client and (voice_client.is_playing() or voice_client.is_paused())
 
-    # Success – send now-playing embed
-    minutes, seconds = divmod(meta.duration, 60)
-    embed = discord.Embed(
-        title=meta.title,
-        url=meta.webpage_url,
-        description=f"Duration: {minutes}:{seconds:02d}",
-        color=discord.Color.green(),
-    )
-    embed.set_thumbnail(url=meta.thumbnail)
-    await ctx.send(embed=embed)
+    if is_playing:
+        # Add to queue
+        music_queue.add(meta)
+        
+        # Send queued embed
+        minutes, seconds = divmod(meta.duration, 60)
+        embed = discord.Embed(
+            title="Added to Queue",
+            description=f"**{meta.title}**\nDuration: {minutes}:{seconds:02d}\nPosition: {music_queue.size()}",
+            color=discord.Color.blue(),
+        )
+        embed.set_thumbnail(url=meta.thumbnail)
+        await ctx.send(embed=embed)
+    else:
+        # Play immediately
+        music_queue.set_current(meta)
+        
+        # Create callback for automatic queue progression
+        async def queue_callback():
+            await play_next_in_queue(ctx)
+        
+        try:
+            await play_url(ctx, meta.stream_url, on_complete=queue_callback)
+        except PlaybackError as exc:
+            embed = discord.Embed(
+                title="Playback Error",
+                description=str(exc),
+                color=discord.Color.red(),
+            )
+            await ctx.send(embed=embed)
+            return
+
+        # Success – send now-playing embed
+        minutes, seconds = divmod(meta.duration, 60)
+        embed = discord.Embed(
+            title="Now Playing",
+            description=f"**{meta.title}**\nDuration: {minutes}:{seconds:02d}",
+            color=discord.Color.green(),
+        )
+        embed.set_thumbnail(url=meta.thumbnail)
+        embed.add_field(name="URL", value=f"[Watch on YouTube]({meta.webpage_url})", inline=False)
+        await ctx.send(embed=embed)
 
 
 async def stop(ctx: commands.Context):
     """Stop playback and clear the queue."""
-    # Todo
-    embed = discord.Embed(
-        title="Work in Progress",
-    )
-    await ctx.send(embed=embed)
-
+    try:
+        await stop_playback(ctx)
+        embed = discord.Embed(
+            title="Stopped",
+            description="Playback stopped and queue cleared.",
+            color=discord.Color.red(),
+        )
+        await ctx.send(embed=embed)
+    except HumanError as exc:
+        embed = discord.Embed(
+            title="Human Error",
+            description=str(exc),
+            color=discord.Color.red(),
+        )
+        await ctx.send(embed=embed)
 
 
 async def pause(ctx: commands.Context):
