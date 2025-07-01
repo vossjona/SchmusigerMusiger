@@ -140,7 +140,7 @@ async def song_info(ctx: commands.Context, url: str = None):
 
 
 def setup(bot: commands.Bot):
-    bot.add_command(commands.Command(search, name="search", help="Search for a song"))
-    bot.add_command(commands.Command(song_info, name="song_info", help="Show information about a specific song"))
+    bot.add_command(commands.Command(search, name="search", aliases=["s", "find"], help="Search for a song"))
+    bot.add_command(commands.Command(song_info, name="songinfo", aliases=["info", "details"], help="Show information about a specific song"))
 
 

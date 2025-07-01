@@ -280,10 +280,10 @@ async def shuffle(ctx: commands.Context):
 
 def setup(bot: commands.Bot):
     """Register the queue commands with the bot."""
-    bot.add_command(commands.Command(queue, name="queue", help="Show the current playback queue"))
-    bot.add_command(commands.Command(now_playing, name="now_playing", help="Show the currently playing track"))
-    bot.add_command(commands.Command(clear_queue, name="clear_queue", help="Clear the current playback queue"))
-    bot.add_command(commands.Command(skip, name="skip", help="Skip the current track"))
-    bot.add_command(commands.Command(skip_n, name="skip_n", help="Skip the next N tracks in the queue"))
-    bot.add_command(commands.Command(remove_n, name="remove_n", help="Remove the Nth track from the queue"))
-    bot.add_command(commands.Command(shuffle, name="shuffle", help="Shuffle the current playback queue"))
+    bot.add_command(commands.Command(queue, name="queue", aliases=["q", "list"], help="Show the current playback queue"))
+    bot.add_command(commands.Command(now_playing, name="current", aliases=["np", "playing"], help="Show the currently playing track"))
+    bot.add_command(commands.Command(clear_queue, name="clear", aliases=["empty"], help="Clear the current playback queue"))
+    bot.add_command(commands.Command(skip, name="skip", aliases=["next", "n"], help="Skip the current track"))
+    bot.add_command(commands.Command(skip_n, name="skipto", aliases=["jump"], help="Skip the next N tracks in the queue"))
+    bot.add_command(commands.Command(remove_n, name="remove", aliases=["rm", "delete"], help="Remove the Nth track from the queue"))
+    bot.add_command(commands.Command(shuffle, name="shuffle", aliases=["sh", "random"], help="Shuffle the current playback queue"))

@@ -185,8 +185,8 @@ async def volume(ctx: commands.Context, level: int = None):
 
 def setup(bot: commands.Bot):
     """Register the !play command with the bot."""
-    bot.add_command(commands.Command(play, name="play", help="Play YouTube audio"))
-    bot.add_command(commands.Command(stop, name="stop", help="Stop playback and clear the queue"))
+    bot.add_command(commands.Command(play, name="play", aliases=["p, start"], help="Play YouTube audio"))
+    bot.add_command(commands.Command(stop, name="stop", aliases=["stopp", "x"], help="Stop playback and clear the queue"))
     bot.add_command(commands.Command(pause, name="pause", help="Pause playback"))
-    bot.add_command(commands.Command(resume, name="resume", help="Resume playback"))
-    bot.add_command(commands.Command(volume, name="volume", help="Set playback volume (0-100)"))
+    bot.add_command(commands.Command(resume, name="resume", aliases=["unpause"], help="Resume playback"))
+    bot.add_command(commands.Command(volume, name="volume", aliases=["vol", "v"], help="Set playback volume (0-100)"))

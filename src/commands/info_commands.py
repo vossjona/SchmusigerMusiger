@@ -15,5 +15,5 @@ async def info(ctx: commands.Context):
 
 def setup(bot: commands.Bot):
     """Register the !info command with the bot."""
-    bot.add_command(commands.Command(info, name="info", help="Show bot information"))
+    bot.add_command(commands.Command(info, name="info", aliases=["about"], help="Show bot information"))
 
