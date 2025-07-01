@@ -7,7 +7,7 @@ from exceptions import HumanError
 async def search(ctx: commands.Context, query: str = None):
     """Search for a song using the provided query."""
     try:
-        if not query or query.strip() == "":
+        if not query or not isinstance(query, str) or query.strip() == "":
             raise HumanError("Please provide a search query. Usage: `!search <query>`")
         
         # Todo
@@ -27,7 +27,7 @@ async def search(ctx: commands.Context, query: str = None):
 async def search_youtube(ctx: commands.Context, query: str = None):
     """Search for a song on YouTube using the provided query."""
     try:
-        if not query or query.strip() == "":
+        if not query or not isinstance(query, str) or query.strip() == "":
             raise HumanError("Please provide a search query. Usage: `!search_youtube <query>`")
         
         # Todo
@@ -47,7 +47,7 @@ async def search_youtube(ctx: commands.Context, query: str = None):
 async def search_soundcloud(ctx: commands.Context, query: str = None):
     """Search for a song on SoundCloud using the provided query."""
     try:
-        if not query or query.strip() == "":
+        if not query or not isinstance(query, str) or query.strip() == "":
             raise HumanError("Please provide a search query. Usage: `!search_soundcloud <query>`")
         
         # Todo
@@ -67,7 +67,7 @@ async def search_soundcloud(ctx: commands.Context, query: str = None):
 async def search_spotify(ctx: commands.Context, query: str = None):
     """Search for a song on Spotify using the provided query."""
     try:
-        if not query or query.strip() == "":
+        if not query or not isinstance(query, str) or query.strip() == "":
             raise HumanError("Please provide a search query. Usage: `!search_spotify <query>`")
         
         # Todo
@@ -87,7 +87,7 @@ async def search_spotify(ctx: commands.Context, query: str = None):
 async def song_info(ctx: commands.Context, url: str = None):
     """Show information about a specific song."""
     try:
-        if not url or url.strip() == "":
+        if not url or not isinstance(url, str) or url.strip() == "":
             raise HumanError("Please provide a song URL. Usage: `!song_info <url>`")
         
         # Todo

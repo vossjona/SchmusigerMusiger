@@ -153,6 +153,9 @@ async def skip_n(ctx: commands.Context, n: int = None):
         if n is None:
             raise HumanError("Please provide a number. Usage: `!skip_n <number>`")
         
+        if not isinstance(n, int):
+            raise HumanError("Please provide a whole number. Usage: `!skip_n <number>`")
+        
         if n < 1:
             raise HumanError("Please provide a number greater than 0.")
     except HumanError as exc:
@@ -221,6 +224,9 @@ async def remove_n(ctx: commands.Context, n: int = None):
     try:
         if n is None:
             raise HumanError("Please provide a number. Usage: `!remove_n <number>`")
+        
+        if not isinstance(n, int):
+            raise HumanError("Please provide a whole number. Usage: `!remove_n <number>`")
         
         if n < 1:
             raise HumanError("Please provide a number greater than 0.")

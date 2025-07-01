@@ -9,6 +9,9 @@ from music_queue import music_queue
 
 logger = logging.getLogger(__name__)
 
+# Global volume state (0.0 to 1.0)
+_current_volume: float = 0.5
+
 
 async def play_url(ctx: commands.Context, url: str, on_complete: Optional[Callable] = None) -> None:
     """
@@ -57,6 +60,9 @@ async def play_url(ctx: commands.Context, url: str, on_complete: Optional[Callab
         executable="ffmpeg",
         **ffmpeg_opts,
     )
+    
+    # Apply volume control
+    source = discord.PCMVolumeTransformer(source, volume=_current_volume)
 
     def _after(err: Exception | None) -> None:
         if err:
@@ -159,3 +165,44 @@ async def resume_playback(ctx: commands.Context) -> None:
         raise HumanError("No audio is currently paused.")
     
     voice_client.resume()
+
+
+async def set_volume(ctx: commands.Context, volume: int) -> None:
+    """
+    Set the playback volume for future audio.
+    
+    Parameters
+    ----------
+    ctx : commands.Context
+        The Discord command context
+    volume : int
+        Volume level from 0 to 100
+        
+    Raises
+    ------
+    HumanError
+        If volume is not between 0 and 100
+    """
+    global _current_volume
+    
+    if not (0 <= volume <= 100):
+        raise HumanError("Volume level must be between 0 and 100.")
+    
+    _current_volume = volume / 100.0
+    
+    # If audio is currently playing, update its volume
+    voice_client: discord.VoiceClient | None = ctx.guild.voice_client  # type: ignore[attr-defined]
+    if voice_client and hasattr(voice_client.source, 'volume'):
+        voice_client.source.volume = _current_volume
+
+
+def get_volume() -> int:
+    """
+    Get the current volume level as a percentage (0-100).
+    
+    Returns
+    -------
+    int
+        Current volume level
+    """
+    return int(_current_volume * 100)

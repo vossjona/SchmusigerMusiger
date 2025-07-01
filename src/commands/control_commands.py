@@ -1,7 +1,7 @@
 import discord
 from discord.ext import commands
 
-from audio_manager import play_url, pause_playback, resume_playback, stop_playback, play_next_in_queue
+from audio_manager import play_url, pause_playback, resume_playback, stop_playback, play_next_in_queue, set_volume, get_volume
 from youtube import YouTubeMetadata, extract_info
 from music_queue import music_queue
 
@@ -11,7 +11,7 @@ from exceptions import HumanError, PlaybackError
 async def play(ctx: commands.Context, url: str = None):
     """Stream audio from a YouTube URL into the caller's voice channel."""
     try:
-        if not url or url.strip() == "":
+        if not url or not isinstance(url, str) or url.strip() == "":
             raise HumanError("Please provide a YouTube URL. Usage: `!play <url>`")
         
         # Ensure the author is in a voice channel
@@ -153,14 +153,25 @@ async def volume(ctx: commands.Context, level: int = None):
     """Set the playback volume (0-100)."""
     try:
         if level is None:
-            raise HumanError("Please provide a volume level. Usage: `!volume <0-100>`")
+            # Show current volume
+            current_vol = get_volume()
+            embed = discord.Embed(
+                title="Current Volume",
+                description=f"Volume is set to {current_vol}%",
+                color=discord.Color.blue(),
+            )
+            await ctx.send(embed=embed)
+            return
+
+        if not isinstance(level, int):
+            raise HumanError("Please provide a volume level as a whole number (0-100).")
+
+        await set_volume(ctx, level)
         
-        if not (0 <= level <= 100):
-            raise HumanError("Volume level must be between 0 and 100.")
-        
-        # Todo
         embed = discord.Embed(
-            title="Work in Progress",
+            title="Volume Set",
+            description=f"Volume set to {level}%",
+            color=discord.Color.green(),
         )
         await ctx.send(embed=embed)
     except HumanError as exc:
