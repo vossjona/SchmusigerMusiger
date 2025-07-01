@@ -3,7 +3,7 @@ from discord.ext import commands
 
 from music_queue import music_queue
 from audio_manager import play_next_in_queue
-from exceptions import HumanError
+from exceptions import HumanError, get_random_human_error_title
 
 
 async def queue(ctx: commands.Context):
@@ -160,7 +160,7 @@ async def skip_n(ctx: commands.Context, n: int = None):
             raise HumanError("Please provide a number greater than 0.")
     except HumanError as exc:
         embed = discord.Embed(
-            title="Human Error",
+            title=get_random_human_error_title(),
             description=str(exc),
             color=discord.Color.red(),
         )
@@ -232,7 +232,7 @@ async def remove_n(ctx: commands.Context, n: int = None):
             raise HumanError("Please provide a number greater than 0.")
     except HumanError as exc:
         embed = discord.Embed(
-            title="Human Error",
+            title=get_random_human_error_title(),
             description=str(exc),
             color=discord.Color.red(),
         )

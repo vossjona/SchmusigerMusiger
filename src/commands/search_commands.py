@@ -1,7 +1,7 @@
 import discord
 from discord.ext import commands
 
-from exceptions import HumanError
+from exceptions import HumanError, get_random_human_error_title
 from youtube import search_youtube
 from commands.control_commands import play
 
@@ -112,7 +112,7 @@ async def search(ctx: commands.Context, query: str = None, source: str = "youtub
             
     except HumanError as exc:
         embed = discord.Embed(
-            title="Human Error",
+            title=get_random_human_error_title(),
             description=str(exc),
             color=discord.Color.red(),
         )
@@ -132,7 +132,7 @@ async def song_info(ctx: commands.Context, url: str = None):
         await ctx.send(embed=embed)
     except HumanError as exc:
         embed = discord.Embed(
-            title="Human Error",
+            title=get_random_human_error_title(),
             description=str(exc),
             color=discord.Color.red(),
         )

@@ -5,7 +5,7 @@ from audio_manager import play_url, pause_playback, resume_playback, stop_playba
 from youtube import YouTubeMetadata, extract_info
 from music_queue import music_queue
 
-from exceptions import HumanError, PlaybackError
+from exceptions import HumanError, PlaybackError, get_random_human_error_title
 
 
 async def play(ctx: commands.Context, url: str = None):
@@ -25,7 +25,7 @@ async def play(ctx: commands.Context, url: str = None):
             return
     except HumanError as exc:
         embed = discord.Embed(
-            title="Human Error",
+            title=get_random_human_error_title(),
             description=str(exc),
             color=discord.Color.red(),
         )
@@ -104,7 +104,7 @@ async def stop(ctx: commands.Context):
         await ctx.send(embed=embed)
     except HumanError as exc:
         embed = discord.Embed(
-            title="Human Error",
+            title=get_random_human_error_title(),
             description=str(exc),
             color=discord.Color.red(),
         )
@@ -123,7 +123,7 @@ async def pause(ctx: commands.Context):
         await ctx.send(embed=embed)
     except HumanError as exc:
         embed = discord.Embed(
-            title="Human Error",
+            title=get_random_human_error_title(),
             description=str(exc),
             color=discord.Color.red(),
         )
@@ -142,7 +142,7 @@ async def resume(ctx: commands.Context):
         await ctx.send(embed=embed)
     except HumanError as exc:
         embed = discord.Embed(
-            title="Human Error",
+            title=get_random_human_error_title(),
             description=str(exc),
             color=discord.Color.red(),
         )
@@ -176,7 +176,7 @@ async def volume(ctx: commands.Context, level: int = None):
         await ctx.send(embed=embed)
     except HumanError as exc:
         embed = discord.Embed(
-            title="Human Error",
+            title=get_random_human_error_title(),
             description=str(exc),
             color=discord.Color.red(),
         )
