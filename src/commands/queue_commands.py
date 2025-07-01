@@ -3,6 +3,7 @@ from discord.ext import commands
 
 from music_queue import music_queue
 from audio_manager import play_next_in_queue
+from exceptions import HumanError
 
 
 async def queue(ctx: commands.Context):
@@ -146,12 +147,18 @@ async def skip(ctx: commands.Context):
     await ctx.send(embed=embed)
 
 
-async def skip_n(ctx: commands.Context, n: int):
+async def skip_n(ctx: commands.Context, n: int = None):
     """Skip the next N tracks in the queue."""
-    if n < 1:
+    try:
+        if n is None:
+            raise HumanError("Please provide a number. Usage: `!skip_n <number>`")
+        
+        if n < 1:
+            raise HumanError("Please provide a number greater than 0.")
+    except HumanError as exc:
         embed = discord.Embed(
-            title="Invalid Number",
-            description="Please provide a number greater than 0.",
+            title="Human Error",
+            description=str(exc),
             color=discord.Color.red(),
         )
         await ctx.send(embed=embed)
@@ -209,12 +216,18 @@ async def skip_n(ctx: commands.Context, n: int):
     await ctx.send(embed=embed)
 
 
-async def remove_n(ctx: commands.Context, n: int):
+async def remove_n(ctx: commands.Context, n: int = None):
     """Remove the Nth track from the queue."""
-    if n < 1:
+    try:
+        if n is None:
+            raise HumanError("Please provide a number. Usage: `!remove_n <number>`")
+        
+        if n < 1:
+            raise HumanError("Please provide a number greater than 0.")
+    except HumanError as exc:
         embed = discord.Embed(
-            title="Invalid Number",
-            description="Please provide a number greater than 0.",
+            title="Human Error",
+            description=str(exc),
             color=discord.Color.red(),
         )
         await ctx.send(embed=embed)

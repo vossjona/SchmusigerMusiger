@@ -8,13 +8,25 @@ from music_queue import music_queue
 from exceptions import HumanError, PlaybackError
 
 
-async def play(ctx: commands.Context, url: str):
+async def play(ctx: commands.Context, url: str = None):
     """Stream audio from a YouTube URL into the caller's voice channel."""
-    # Ensure the author is in a voice channel
-    if ctx.author.voice is None:
+    try:
+        if not url or url.strip() == "":
+            raise HumanError("Please provide a YouTube URL. Usage: `!play <url>`")
+        
+        # Ensure the author is in a voice channel
+        if ctx.author.voice is None:
+            embed = discord.Embed(
+                title="Voice Channel Required",
+                description="You must be connected to a voice channel to use this command.",
+                color=discord.Color.red(),
+            )
+            await ctx.send(embed=embed)
+            return
+    except HumanError as exc:
         embed = discord.Embed(
-            title="Voice Channel Required",
-            description="You must be connected to a voice channel to use this command.",
+            title="Human Error",
+            description=str(exc),
             color=discord.Color.red(),
         )
         await ctx.send(embed=embed)
@@ -87,7 +99,7 @@ async def stop(ctx: commands.Context):
         embed = discord.Embed(
             title="Stopped",
             description="Playback stopped and queue cleared.",
-            color=discord.Color.red(),
+            color=discord.Color.orange(),
         )
         await ctx.send(embed=embed)
     except HumanError as exc:
@@ -137,13 +149,27 @@ async def resume(ctx: commands.Context):
         await ctx.send(embed=embed)
 
 
-async def volume(ctx: commands.Context, level: int):
+async def volume(ctx: commands.Context, level: int = None):
     """Set the playback volume (0-100)."""
-    # Todo
-    embed = discord.Embed(
-        title="Work in Progress",
-    )
-    await ctx.send(embed=embed)
+    try:
+        if level is None:
+            raise HumanError("Please provide a volume level. Usage: `!volume <0-100>`")
+        
+        if not (0 <= level <= 100):
+            raise HumanError("Volume level must be between 0 and 100.")
+        
+        # Todo
+        embed = discord.Embed(
+            title="Work in Progress",
+        )
+        await ctx.send(embed=embed)
+    except HumanError as exc:
+        embed = discord.Embed(
+            title="Human Error",
+            description=str(exc),
+            color=discord.Color.red(),
+        )
+        await ctx.send(embed=embed)
 
 
 def setup(bot: commands.Bot):
