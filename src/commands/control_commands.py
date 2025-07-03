@@ -4,8 +4,10 @@ from discord.ext import commands
 from audio_manager import play_url, pause_playback, resume_playback, stop_playback, play_next_in_queue, set_volume, get_volume
 from youtube import YouTubeMetadata, extract_info, search_youtube
 from music_queue import music_queue
+from utils import parse_query_and_args
 
 from exceptions import HumanError, PlaybackError, get_random_human_error_title
+
 
 
 async def play(ctx: commands.Context, *args):
@@ -32,8 +34,17 @@ async def play(ctx: commands.Context, *args):
         await ctx.send(embed=embed)
         return
 
-    # Join all arguments into a single string
-    query = " ".join(args)
+    # Parse query and additional arguments
+    query, additional_args = parse_query_and_args(args)
+
+    if not query:
+        embed = discord.Embed(
+            title=get_random_human_error_title(),
+            description="Please provide a YouTube URL or search query. Usage: `!play <url or search terms>`",
+            color=discord.Color.red(),
+        )
+        await ctx.send(embed=embed)
+        return
 
     # Check if it's a URL (contains youtube.com, youtu.be, etc.)
     is_url = any(domain in query.lower() for domain in ["youtube.com", "youtu.be", "music.youtube.com"])

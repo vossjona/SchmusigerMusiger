@@ -74,3 +74,40 @@ def expand_env_vars(value: T) -> T:
 
     # otherwise do nothing and return the value
     return value
+
+
+def parse_query_and_args(args):
+    """
+    Parse command arguments into query and additional arguments.
+    
+    Format: query text -- key value key value
+    
+    Returns:
+        tuple: (query_string, args_dict)
+    """
+    if not args:
+        return "", {}
+    
+    # Convert all args to strings and join
+    str_args = [str(arg) for arg in args]
+    full_text = " ".join(str_args)
+    
+    # Split on -- to separate query from additional args
+    if " -- " in full_text:
+        query_part, args_part = full_text.split(" -- ", 1)
+        query = query_part.strip()
+        
+        # Parse additional arguments as key-value pairs
+        args_dict = {}
+        if args_part.strip():
+            arg_tokens = args_part.split()
+            for i in range(0, len(arg_tokens), 2):
+                if i + 1 < len(arg_tokens):
+                    key = arg_tokens[i]
+                    value = arg_tokens[i + 1]
+                    args_dict[key] = value
+        
+        return query, args_dict
+    else:
+        # No -- separator, everything is query
+        return full_text.strip(), {}

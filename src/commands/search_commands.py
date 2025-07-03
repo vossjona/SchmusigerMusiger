@@ -4,20 +4,31 @@ from discord.ext import commands
 from exceptions import HumanError, get_random_human_error_title
 from youtube import search_youtube
 from commands.control_commands import play
+from utils import parse_query_and_args
 
 
-async def search(ctx: commands.Context, query: str = None, source: str = "youtube", limit: int = 5):
+
+async def search(ctx: commands.Context, *args):
     """Search for a song using the provided query."""
     try:
-        if not query or not isinstance(query, str) or query.strip() == "":
-            raise HumanError("Please provide a search query. Usage: `!search <query>`")
+        # Parse query and additional arguments
+        query, additional_args = parse_query_and_args(args)
+        
+        if not query:
+            raise HumanError("Please provide a search query. Usage: `!search <query> [-- source <source> limit <limit>]`")
+        
+        # Extract source and limit from additional args with defaults
+        source = additional_args.get("source", "youtube")
+        limit_str = additional_args.get("limit", "5")
         
         # Validate source parameter
         if source not in ["youtube"]:
             raise HumanError(f"Unsupported source '{source}'. Currently only 'youtube' is supported.")
         
-        # Validate limit parameter
-        if not isinstance(limit, int):
+        # Validate and convert limit parameter
+        try:
+            limit = int(limit_str)
+        except ValueError:
             raise HumanError("Limit must be a whole number.")
         
         if limit < 1 or limit > 10:
@@ -119,28 +130,8 @@ async def search(ctx: commands.Context, query: str = None, source: str = "youtub
         await ctx.send(embed=embed)
 
 
-async def song_info(ctx: commands.Context, url: str = None):
-    """Show information about a specific song."""
-    try:
-        if not url or not isinstance(url, str) or url.strip() == "":
-            raise HumanError("Please provide a song URL. Usage: `!song_info <url>`")
-        
-        # Todo
-        embed = discord.Embed(
-            title="Work in Progress",
-        )
-        await ctx.send(embed=embed)
-    except HumanError as exc:
-        embed = discord.Embed(
-            title=get_random_human_error_title(),
-            description=str(exc),
-            color=discord.Color.red(),
-        )
-        await ctx.send(embed=embed)
-
 
 def setup(bot: commands.Bot):
     bot.add_command(commands.Command(search, name="search", aliases=["s", "find"], help="Search for a song"))
-    bot.add_command(commands.Command(song_info, name="songinfo", aliases=["info", "details"], help="Show information about a specific song"))
 
 
