@@ -26,7 +26,6 @@ class Settings(BaseSettings):
 
 class BotConfig(BaseModel):
     prefix: str = "!"
-    greeting: str = "Hello, I am your music bot!"
 
     model_config = ConfigDict(protected_namespaces=())
 
