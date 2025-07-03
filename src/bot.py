@@ -1,5 +1,3 @@
-import ctypes
-
 import discord
 from discord.ext import commands
 
@@ -9,7 +7,7 @@ from exceptions import get_random_human_error_title
 
 # Load settings (reads .env then config.yml)
 settings = Settings()
-bot_config = BotConfig()
+bot_config = BotConfig.from_file(settings.BOT_CONFIGS_PATH)
 
 if not discord.opus.is_loaded():
     discord.opus.load_opus(settings.OPUS_LIB_NAME)

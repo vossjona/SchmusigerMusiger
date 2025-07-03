@@ -32,6 +32,6 @@ class BotConfig(BaseModel):
 
     @classmethod
     def from_file(cls, filepath: Path) -> Self:
-        """Use config json or yaml file to read ai-model-gateway configurations."""
+        """Use config json or yaml file to read bot configurations."""
         config = read_file(filepath)
-        return cls.model_validate(config["ai_model_gateway"])
+        return cls.model_validate(config)
