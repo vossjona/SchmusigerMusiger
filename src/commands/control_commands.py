@@ -2,18 +2,18 @@ import discord
 from discord.ext import commands
 
 from audio_manager import play_url, pause_playback, resume_playback, stop_playback, play_next_in_queue, set_volume, get_volume
-from youtube import YouTubeMetadata, extract_info
+from youtube import YouTubeMetadata, extract_info, search_youtube
 from music_queue import music_queue
 
 from exceptions import HumanError, PlaybackError, get_random_human_error_title
 
 
-async def play(ctx: commands.Context, url: str = None):
-    """Stream audio from a YouTube URL into the caller's voice channel."""
+async def play(ctx: commands.Context, *args):
+    """Stream audio from a YouTube URL or search query into the caller's voice channel."""
     try:
-        if not url or not isinstance(url, str) or url.strip() == "":
-            raise HumanError("Please provide a YouTube URL. Usage: `!play <url>`")
-        
+        if not args:
+            raise HumanError("Please provide a YouTube URL or search query. Usage: `!play <url or search terms>`")
+
         # Ensure the author is in a voice channel
         if ctx.author.voice is None:
             embed = discord.Embed(
@@ -32,9 +32,41 @@ async def play(ctx: commands.Context, url: str = None):
         await ctx.send(embed=embed)
         return
 
+    # Join all arguments into a single string
+    query = " ".join(args)
+
+    # Check if it's a URL (contains youtube.com, youtu.be, etc.)
+    is_url = any(domain in query.lower() for domain in ["youtube.com", "youtu.be", "music.youtube.com"])
+
     # Retrieve metadata (this can take a moment)
     try:
-        meta: YouTubeMetadata = await extract_info(url)
+        if is_url:
+            meta: YouTubeMetadata = await extract_info(query)
+        else:
+            # Search for the best match
+            searching_embed = discord.Embed(
+                title="Searching",
+                description=f"Searching for: {query}",
+                color=discord.Color.yellow(),
+            )
+            search_message = await ctx.send(embed=searching_embed)
+
+            search_results = await search_youtube(query, limit=1)
+            await search_message.delete()
+
+            if not search_results:
+                embed = discord.Embed(
+                    title="No Results",
+                    description=f"No search results found for: {query}",
+                    color=discord.Color.red(),
+                )
+                await ctx.send(embed=embed)
+                return
+
+            # Get full metadata including stream_url for the best match
+            best_match = search_results[0]
+            meta: YouTubeMetadata = await extract_info(best_match.webpage_url)
+
     except Exception as exc:  # pragma: no cover
         embed = discord.Embed(
             title="YouTube Error",
